@@ -30,29 +30,20 @@ object AOC2022 {
 
   }
 
-  def parse( lines : List[String], current : List[String], elves : List[List[String]] ) : List[List[String]] = {
+  def parse( lines : List[String], current : List[String], elves : List[List[String]] ) : List[List[String]] =
 
-    if( lines.isEmpty ) {
+    if lines.isEmpty then
       elves :+ current
-    }
-    else {
-
+    else
       var h = lines.head.trim
-
-      if( h.isEmpty ) {
-        // end the current elf, and start another elf
+      if h.isEmpty then
         parse( lines.tail, List(), elves :+ current )
+      else
+        parse( lines.tail, current :+ h, elves )
+      end if
+    end if
 
-      }
-      else {
-
-        var n = current :+ h
-        parse( lines.tail, n, elves )
-
-      }
-    }
-
-  }
+  end parse
 
   var test =
     """1000
