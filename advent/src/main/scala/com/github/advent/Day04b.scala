@@ -5,34 +5,31 @@ object Day04b {
   def main(args: Array[String]): Unit = {
     Console.out.println("day04b...")
     val ls = data.split('\n').toList
-    val ps = parse( ls, List() )
-
-    val os = ps.map( p => p._1.intersect(p._2))
-    val oss = os.filter( _.nonEmpty )
-
-    Console.println(oss.size)
-
+    Console.println( parse( ls, 0 ) )
 
   }
 
-  def parse( lines : List[String], pairs : List[(Set[Int],Set[Int])] ) : List[(Set[Int],Set[Int])] = {
+  def parse( lines : List[String], count : Int ) : Int =
 
-    if( lines.isEmpty ) {
-      pairs
-    }
-    else {
+    if lines.isEmpty then
+      count
+    else
       val line = lines.head.trim
+
       val ps = line.split(',')
       val a = ps(0).split('-')
       val b = ps(1).split('-')
 
-      val s1 = for( i <- a(0) .toInt to a(1).toInt ) yield ( i )
+      val s1 = for( i <- a(0).toInt to a(1).toInt ) yield ( i )
       val s2 = for( i <- b(0).toInt to b(1).toInt ) yield ( i )
+      val i1 = s1.intersect(s2)
 
-      parse( lines.tail, pairs :+ (s1.toSet,s2.toSet) )
-    }
+      val nc = if( i1.isEmpty ) count else count + 1
 
-  }
+      parse( lines.tail, nc )
+    end if
+
+  end parse
 
 
   val test =
