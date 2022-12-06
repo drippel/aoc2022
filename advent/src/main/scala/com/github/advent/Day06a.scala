@@ -1,5 +1,7 @@
 package com.github.advent
 
+import com.github.advent.Day06a.findMarker
+
 object Day06a {
 
   def main(args: Array[String]): Unit = {
@@ -25,6 +27,7 @@ object Day06a {
       }
 
     }
+
 
   }
 
