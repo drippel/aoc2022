@@ -3,87 +3,28 @@ package com.github.advent
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-object Day07b {
+object Day07c {
 
   def main(args: Array[String]): Unit = {
-    Console.out.println("day07b")
+    Console.out.println("day07c")
 
-    val lines = data.split('\n').map(_.strip()).toList
+    val lines = test.split('\n').map(_.strip()).toList
     val root = parse(lines)
 
-    // Console.out.println(root)
-    calcSizes(root)
-    printDir(root, "" )
-    val ds = findDeletes( root, List() )
-    Console.out.println(ds)
-    val sum = ds.map(_.sizes.head).sum
-    Console.out.println(sum)
-    val allds = flatten(root, List()).sortBy( _.sizes.head )
-
-    allds.foreach(Console.out.println(_))
-
-    val free = 70000000 - allds.last.sizes.head
-
-    Console.out.println("potentials")
-    val potentials = allds.filter( d => (d.sizes.head + free) >= 30000000)
-    potentials.foreach(Console.out.println(_))
-
-    Console.out.println(s"winner: ${potentials.head.sizes.head}")
-
-    printDir(root, "")
-  }
-
-  def flatten( dir : Directory, accum : List[Directory] ) : List[Directory] = {
-
-    val na = accum :+ dir
-
-    val cs = dir.dirs.flatMap(flatten(_, List())).toList
-
-    na ++ cs
+    Console.out.println(dirMap)
+    Console.out.println(fileMap)
 
   }
 
-  def findDeletes( dir : Directory, accum : List[Directory] ) : List[Directory] = {
-
-    val na = if( dir.sizes.head <= 100000 ) {
-      accum :+ dir
-    }
-    else {
-      accum
-    }
-
-    val cs = dir.dirs.flatMap(findDeletes(_, List())).toList
-
-    na ++ cs
-
-  }
-
-  def calcSizes( dir : Directory ) : BigDecimal = {
-
-    val fs = dir.files.map(_.size).sum
-    val ds = dir.dirs.map( calcSizes ).sum
-
-    dir.sizes += fs + ds
-    fs + ds
-  }
-
-  case class Directory( name : String, dirs : ListBuffer[Directory], files : ListBuffer[File], sizes : ListBuffer[BigDecimal] )
+  case class Directory( name : String )
   case class File( name : String, size : BigDecimal )
 
-  def printDir( dir : Directory, path : String ) : Unit = {
-    Console.out.println( s"${path}/${dir.name} - size: ${dir.sizes.head} (dir)")
-    for( d <- dir.dirs ) {
-      printDir( d, ( path + "/" + dir.name ) )
-    }
-    for( f <- dir.files ) {
-      Console.out.println( s"    ${f.name} (file, ${f.size})")
-    }
-  }
-
+  val dirMap = mutable.HashMap[String,List[Directory]]()
+  val fileMap = mutable.HashMap[String,List[File]]()
 
   def parse( olines : List[String] ) : Directory = {
 
-    val root = Directory( "/", ListBuffer(), ListBuffer(), ListBuffer() )
+    val root = Directory( "/" )
 
     def innerParse( lines : List[String], dirs : mutable.Stack[Directory] ) : Unit = {
 
@@ -105,7 +46,9 @@ object Day07b {
           val ps = line.split(' ')
           val cd = dirs.top
 
-          val d = cd.dirs.find( _.name.equals(ps(2)))
+          val nm = cd.name + "/" + ps(2)
+
+          val d = dirMap.getOrElse( cd.name, List() ).find( _.name.equals(nm) )
           if( d.isEmpty ) {
             Console.out.println( "wtf not found:" + ps(2))
             System.exit(1)
@@ -117,13 +60,12 @@ object Day07b {
           val ps = line.split(' ')
           val cd = dirs.top
           if( "dir".equals(ps(0))) {
-            val d = Directory( ps(1), ListBuffer(), ListBuffer(), ListBuffer() )
-            cd.dirs += d
+            val d = Directory( cd.name +"/" + ps(1) )
+            dirMap(cd.name) = dirMap.getOrElse( cd.name, List() ) :+ d
           }
           else {
-            Console.out.println("add file")
-            val f = File( ps(1), BigDecimal( ps(0) ) )
-            cd.files += f
+            val f = File( cd.name +"/"+ ps(1), BigDecimal( ps(0) ) )
+            fileMap(cd.name) = fileMap.getOrElse( cd.name, List() ) :+ f
           }
 
           innerParse(lines.tail,dirs)
